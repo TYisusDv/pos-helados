@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+.box {
+    position: absolute;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    width: 74vw;
+    height: 85vh;
+}
+
+.modal__box {
+    position: relative;
+    transform: scale(0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    padding: 20px 40px;
+    background-color: #fefefe;
+    border-radius: 16px;
+    border: 1px solid #d884b6;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.modal__title,
+.modal__text {
+    margin-bottom: 20px;
+}
+
+.box.active .overlay,
+.box.active .modal__box {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.box.active .modal__box {
+    transform: scale(1);
+    transition: all 0.3s ease;
+}
+
+.buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+}

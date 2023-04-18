@@ -1,0 +1,66 @@
+<div class="wrap">
+    <div class="search">
+        <input type="text" class="searchTerm" placeholder="Qué estás buscando?" id="inpTableSearch">
+        <button type="submit" class="searchButton" id="btnTableSearch">
+         <i class="fa fa-search"></i>
+      </button>
+    </div>
+</div>
+<div class="dtable">
+    <div class="table-responsive">
+        <table class="data">
+            <thead>
+                <tr>
+                    {% for column in columns %}
+                    <th scope="col">{{column}}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    {% for data in row %} {% autoescape on %}
+                    <td>{{data}}</td>
+                    {% endautoescape %} {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="item-list">
+    <ul class="pager">
+        <li class="pager-item"><button class="btn" title="Ir a la página anterior" onclick="setPagePrevious();">‹</button></li>
+        {% for i in range(pages) %}
+        <li class="pager-item"><button class="btn" id="btnTPage-{{i + 1}}" title="Ir a la página número 1" onclick="setPage('{{i + 1}}');">{{i + 1}}</button></li>
+        {% endfor %}
+        <li class="pager-item"><button class="btn" id="btnPageNext" title="Ir a la página siguiente" onclick="setPageNext();">›</button></li>
+    </ul>
+</div>
+<script>
+    page_max = parseInt("{{pages}}");
+
+    $("#inpTableSearch").val(table_search);
+
+    searchInput = document.getElementById('inpTableSearch');
+    searchInput.addEventListener("input", () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(function() {
+            setSearch($("#inpTableSearch").val());
+        }, 500);
+    });
+
+    $("#btnTableSearch").click(function() {
+        setSearch($("#inpTableSearch").val());
+    });
+
+    setPageCurrent();
+
+    function setPageCurrent() {
+        $(`#btnTPage-${page}`).attr("class", "btn pager-current");
+
+        setTimeout(function() {
+            setPageCurrent();
+        }, 1000);
+    }
+</script>

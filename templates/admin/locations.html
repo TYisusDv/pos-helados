@@ -1,0 +1,249 @@
+<div class="animate__animated animate__fadeIn">
+    <div class="box modal-edit">
+        <div class="overlay"></div>
+        <div class="modal__box">
+            <h3 class="modal__title">Editar ubicación</h3>
+            <form id="form-editlocation" action="javascript:;" class="w-100 center-2">
+                <p class="modal__text">
+                    <div class="group w-60per mt-0">
+                        <input type="text" name="id" required readonly="readonly">
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                    </div>
+                    <div class="group w-60per">
+                        <input type="text" name="name" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Nombre</label>
+                    </div>
+                    <div class="group w-60per">
+                        <select name="city" class="w-100">
+                            <option value="0">Selecciona una ciudad</option>
+                            {% for city in cities %}
+                            <option value="{{city.ci_id}}">{{city.ci_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="checkbox mt-30">
+                        <input type="checkbox" name="status">
+                        <label for="checkbox">Activo?</label>
+                    </div>
+                </p>
+                <div class="buttons mt-30">
+                    <button class="btn modal__button modal__button--yes btn-primary" type="submit" id="btnEdit">Guardar</button>
+                    <button class="btn modal__button modal__button--no" modalclass="modal-edit" type="button">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="box modal-add">
+        <div class="overlay"></div>
+        <div class="modal__box">
+            <h3 class="modal__title">Agregar ubicación</h3>
+            <form id="form-addlocation" action="javascript:;" class="w-100 center-2">
+                <p class="modal__text">
+                    <div class="group w-60per">
+                        <input type="text" name="name" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Nombre</label>
+                    </div>
+                    <div class="group w-60per">
+                        <select name="city" class="w-100">
+                            <option value="0">Selecciona una ciudad</option>
+                            {% for city in cities %}
+                            <option value="{{city.ci_id}}">{{city.ci_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </p>
+                <div class="buttons mt-30">
+                    <button class="btn modal__button modal__button--yes btn-primary" type="submit" id="btnAgregar">Agregar</button>
+                    <button class="btn modal__button modal__button--no" modalclass="modal-add" type="button">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <h1 class="content-title">Ubicaciones</h1>
+    <div class="grid-3">
+        <div class="panel-primary bg-white panel-mini">
+            <div>
+                <h4 class="panel-title">Ubicaciones</h4>
+                <h3 class="panel-number">{{locationsTotal}}</h3>
+            </div>
+            <div class="center">
+                <i class="fa-solid fa-location-dot fs-30 color-dark"></i>
+            </div>
+        </div>
+        <div class="panel-success bg-white panel-mini">
+            <div>
+                <h4 class="panel-title">Ubicaciones activas</h4>
+                <h3 class="panel-number">{{locationsOn}}</h3>
+            </div>
+            <div class="center">
+                <i class="fa-solid fa-eye fs-30 color-dark"></i>
+            </div>
+        </div>
+        <div class="panel-danger bg-white panel-mini">
+            <div>
+                <h4 class="panel-title">Ubicaciones inactivas</h4>
+                <h3 class="panel-number">{{locationsOff}}</h3>
+            </div>
+            <div class="center">
+                <i class="fa-solid fa-eye-slash fs-30 color-dark"></i>
+            </div>
+        </div>
+    </div>
+    <div class="grid-1 mt-30">
+        <button class="btn btn-primary mt-10 mb-20 w-200 btn-modal" modalclass="modal-add"><i class="fa-solid fa-pen-to-square"></i> Agregar</button>
+        <div class="panel bg-white" id="contentTable">
+
+        </div>
+    </div>
+</div>
+<script src="/static/js/modal.js"></script>
+<script>
+    firstLoad = true;
+    table_url = "/admin/locations/table";
+    loadWidgetTable();
+
+    $("#form-addlocation").on("submit", (function(e) {
+        e.preventDefault();
+
+        $("#btnAgregar").prop("disabled", true);
+
+        $.ajax({
+            url: `/api/v1/web/data/admin/locations/add`,
+            type: 'post',
+            data: new FormData(this),
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            enctype: 'multipart/form-data',
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken)
+                }
+            },
+            success: function(response) {
+                setTimeout(function() {
+                    if (response.success == false) {
+                        $("#btnAgregar").prop("disabled", false);
+                        toast({
+                            title: "¡Ha ocurrido un error!",
+                            message: response.msg,
+                            type: "error",
+                            duration: 3000
+                        });
+                        return false;
+                    }
+
+                    toast({
+                        title: "Recargando...",
+                        message: response.msg,
+                        type: "loader",
+                        close: false,
+                        duration: 1000
+                    });
+
+                    setTimeout(function() {
+                        setUrl('/admin/locations');
+                    }, 1000);
+
+                    return true;
+                }, 1000);
+            },
+            error: function(xhr) {
+                setTimeout(function() {
+                    var response = JSON.parse(xhr.responseText);
+
+                    toast({
+                        title: "¡Ha ocurrido un error!",
+                        message: response.msg,
+                        type: "error",
+                        duration: 3000
+                    });
+
+                    $("#btnAgregar").prop("disabled", false);
+                    return false;
+                }, 1000);
+            }
+        });
+    }));
+
+    $("#form-editlocation").on("submit", (function(e) {
+        e.preventDefault();
+
+        $("#btnEdit").prop("disabled", true);
+
+        $.ajax({
+            url: `/api/v1/web/data/admin/locations/edit`,
+            type: 'post',
+            data: new FormData(this),
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            enctype: 'multipart/form-data',
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken)
+                }
+            },
+            success: function(response) {
+                setTimeout(function() {
+                    if (response.success == false) {
+                        $("#btnEdit").prop("disabled", false);
+                        toast({
+                            title: "¡Ha ocurrido un error!",
+                            message: response.msg,
+                            type: "error",
+                            duration: 3000
+                        });
+                        return false;
+                    }
+
+                    toast({
+                        title: "Recargando...",
+                        message: response.msg,
+                        type: "loader",
+                        close: false,
+                        duration: 1000
+                    });
+
+                    setTimeout(function() {
+                        setUrl('/admin/locations');
+                    }, 1000);
+
+                    return true;
+                }, 1000);
+            },
+            error: function(xhr) {
+                setTimeout(function() {
+                    var response = JSON.parse(xhr.responseText);
+
+                    toast({
+                        title: "¡Ha ocurrido un error!",
+                        message: response.msg,
+                        type: "error",
+                        duration: 3000
+                    });
+
+                    $("#btnEdit").prop("disabled", false);
+                    return false;
+                }, 1000);
+            }
+        });
+    }));
+
+    function setEdit(id, name, status, city) {
+        $("#form-editlocation input[name=id]").val(id);
+        $("#form-editlocation input[name=name]").val(name);
+        $("#form-editlocation input[name=status]").prop("checked", false);
+
+        if (parseInt(status) == 1) {
+            $("#form-editlocation input[name=status]").prop("checked", true);
+        }
+
+        $("#form-editlocation select[name=city]").val(city);
+    }
+</script>

@@ -1,0 +1,304 @@
+<div class="animate__animated animate__fadeIn">
+    <div class="box modal-edit">
+        <div class="overlay"></div>
+        <div class="modal__box">
+            <h3 class="modal__title">Editar usuario</h3>
+            <form id="form-edituser" action="javascript:;" class="w-100 center-2" autocomplete="off">
+                <p class="modal__text">
+                    <div class="group w-60per mt-0">
+                        <input type="text" name="id" required readonly="readonly">
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                    </div>
+                    <div class="group w-60per">
+                        <select name="typeuser" class="w-100">
+                            {% for typeuser in typesusers %}
+                            <option value="{{typeuser.tu_id}}">{{typeuser.tu_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="group w-60per">
+                        <input type="text" name="fullname" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Nombre completo</label>
+                    </div>
+                    <div class="group w-60per">
+                        <input type="text" name="email" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Correo electrónico</label>
+                    </div>
+                    <div class="group w-60per">
+                        <input type="password" name="pass">
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Contraseña</label>
+                    </div>
+                    <div class="group w-60per">
+                        <input type="text" name="address" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Direccion</label>
+                    </div>
+                    <div class="group w-60per">
+                        <select name="city" class="w-100">
+                            {% for city in cities %}
+                            <option value="{{city.ci_id}}">{{city.ci_name}}, {{city.sts_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="checkbox mt-30">
+                        <input type="checkbox" name="status">
+                        <label for="checkbox">Activo?</label>
+                    </div>
+                </p>
+                <div class="buttons mt-30">
+                    <button class="btn modal__button modal__button--yes btn-primary" id="btnEdit" type="submit">Guardar</button>
+                    <button class="btn modal__button modal__button--no" modalclass="modal-edit" type="button">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="box modal-add">
+        <div class="overlay"></div>
+        <div class="modal__box">
+            <h3 class="modal__title">Agregar usuario</h3>
+            <form id="form-adduser" action="javascript:;" class="w-100 center-2" autocomplete="off">
+                <p class="modal__text">
+                    <div class="group w-60per">
+                        <input type="text" name="fullname" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Nombre completo</label>
+                    </div>
+                    <div class="group w-60per">
+                        <input type="text" name="email" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Correo electrónico</label>
+                    </div>
+                    <div class="group w-60per">
+                        <input type="password" name="pass" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Contraseña</label>
+                    </div>
+                    <div class="group w-60per">
+                        <input type="text" name="address" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Direccion</label>
+                    </div>
+                    <div class="group w-60per">
+                        <select name="city" class="w-100">
+                            <option value="0">Selecciona una ciudad</option>
+                            {% for city in cities %}
+                            <option value="{{city.ci_id}}">{{city.ci_name}}, {{city.sts_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </p>
+                <div class="buttons mt-30">
+                    <button class="btn modal__button modal__button--yes btn-primary" type="submit" id="btnAgregar">Agregar</button>
+                    <button class="btn modal__button modal__button--no" modalclass="modal-add" type="button">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <h1 class="content-title">Usuarios</h1>
+    <div class="grid-4">
+        <div class="panel-primary bg-white panel-mini">
+            <div>
+                <h4 class="panel-title">Usuarios</h4>
+                <h3 class="panel-number">{{usersTotal}}</h3>
+            </div>
+            <div class="center">
+                <i class="fa-solid fa-users fs-30 color-dark"></i>
+            </div>
+        </div>
+        <div class="panel-info bg-white panel-mini">
+            <div>
+                <h4 class="panel-title">Usuarios Online</h4>
+                <h3 class="panel-number">0</h3>
+            </div>
+            <div class="center">
+                <i class="fa-solid fa-users-viewfinder fs-30 color-dark"></i>
+            </div>
+        </div>
+        <div class="panel-success bg-white panel-mini">
+            <div>
+                <h4 class="panel-title">Usuarios Activos</h4>
+                <h3 class="panel-number">{{usersTotalOn}}</h3>
+            </div>
+            <div class="center">
+                <i class="fa-solid fa-users-line fs-30 color-dark"></i>
+            </div>
+        </div>
+        <div class="panel-danger bg-white panel-mini">
+            <div>
+                <h4 class="panel-title">Usuarios Prohibidos</h4>
+                <h3 class="panel-number">{{usersTotalOff}}</h3>
+            </div>
+            <div class="center">
+                <i class="fa-solid fa-users-slash fs-30 color-dark"></i>
+            </div>
+        </div>
+    </div>
+    <div class="grid-1 mt-30">
+        <button class="btn btn-primary mt-10 mb-20 w-200 btn-modal" modalclass="modal-add"><i class="fa-solid fa-pen-to-square"></i> Agregar</button>
+        <div class="panel bg-white" id="contentTable">
+
+        </div>
+    </div>
+</div>
+<script src="/static/js/modal.js"></script>
+<script>
+    firstLoad = true;
+    table_url = "/admin/users/table";
+    loadWidgetTable();
+
+    $("#form-adduser").on("submit", (function(e) {
+        e.preventDefault();
+
+        $("#btnAgregar").prop("disabled", true);
+
+        $.ajax({
+            url: `/api/v1/web/data/admin/users/add`,
+            type: 'post',
+            data: new FormData(this),
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            enctype: 'multipart/form-data',
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken)
+                }
+            },
+            success: function(response) {
+                setTimeout(function() {
+                    if (response.success == false) {
+                        $("#btnAgregar").prop("disabled", false);
+                        toast({
+                            title: "¡Ha ocurrido un error!",
+                            message: response.msg,
+                            type: "error",
+                            duration: 3000
+                        });
+                        return false;
+                    }
+
+                    toast({
+                        title: "Recargando...",
+                        message: response.msg,
+                        type: "loader",
+                        close: false,
+                        duration: 1000
+                    });
+
+                    setTimeout(function() {
+                        setUrl('/admin/users');
+                    }, 1000);
+
+                    return true;
+                }, 1000);
+            },
+            error: function(xhr) {
+                setTimeout(function() {
+                    var response = JSON.parse(xhr.responseText);
+
+                    toast({
+                        title: "¡Ha ocurrido un error!",
+                        message: response.msg,
+                        type: "error",
+                        duration: 3000
+                    });
+
+                    $("#btnAgregar").prop("disabled", false);
+                    return false;
+                }, 1000);
+            }
+        });
+    }));
+
+    $("#form-edituser").on("submit", (function(e) {
+        e.preventDefault();
+
+        $("#btnEdit").prop("disabled", true);
+
+        $.ajax({
+            url: `/api/v1/web/data/admin/users/edit`,
+            type: 'post',
+            data: new FormData(this),
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            enctype: 'multipart/form-data',
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken)
+                }
+            },
+            success: function(response) {
+                setTimeout(function() {
+                    if (response.success == false) {
+                        $("#btnEdit").prop("disabled", false);
+                        toast({
+                            title: "¡Ha ocurrido un error!",
+                            message: response.msg,
+                            type: "error",
+                            duration: 3000
+                        });
+                        return false;
+                    }
+
+                    toast({
+                        title: "Recargando...",
+                        message: response.msg,
+                        type: "loader",
+                        close: false,
+                        duration: 1000
+                    });
+
+                    setTimeout(function() {
+                        setUrl('/admin/users');
+                    }, 1000);
+
+                    return true;
+                }, 1000);
+            },
+            error: function(xhr) {
+                setTimeout(function() {
+                    var response = JSON.parse(xhr.responseText);
+
+                    toast({
+                        title: "¡Ha ocurrido un error!",
+                        message: response.msg,
+                        type: "error",
+                        duration: 3000
+                    });
+
+                    $("#btnEdit").prop("disabled", false);
+                    return false;
+                }, 1000);
+            }
+        });
+    }));
+
+    function setEdit(id, typeuser, fullname, email, status, address, city) {
+        $("#form-edituser input[name=id]").val(id);
+        $("#form-edituser select[name=typeuser]").val(typeuser);
+        $("#form-edituser input[name=fullname]").val(fullname);
+        $("#form-edituser input[name=email]").val(email);
+        $("#form-edituser input[name=address]").val(address);
+        $("#form-edituser select[name=city]").val(city);
+
+        $("#form-edituser input[name=status]").prop("checked", false);
+
+        if (parseInt(status) == 1) {
+            $("#form-edituser input[name=status]").prop("checked", true);
+        }
+
+    }
+</script>

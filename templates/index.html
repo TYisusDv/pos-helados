@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto de venta</title>
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/static/others/fontawesome-6.2.1/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="/static/css/modal.css">
+    <link rel="stylesheet" href="/static/css/gen.css">
+</head>
+
+<body>
+    <div id="toast"></div>
+    <div class="container">
+        <nav class="nav-top">
+            <div class="nav-top-content">
+                <div class="nav-top-img">
+                    <img src="/static/images/logo.jpg">
+                    <h1>Helados Alexia</h1>
+                </div>
+                <div class="nav-top-menu" id="menuButton">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="nav-top-user">
+                    <span>Jesus Navarro</span>
+                    <img src="/static/images/logo.jpg">
+                </div>
+            </div>
+            <ul class="nav-top-user-menu">
+                <li>
+                    <a href="#">
+                        <ion-icon name="person-outline"></ion-icon>Profile</a>
+                </li>
+                <li>
+                    <a href="#">
+                        <ion-icon name="chatbox-outline"></ion-icon>Messages</a>
+                </li>
+                <li>
+                    <a href="#">
+                        <ion-icon name="notifications-outline"></ion-icon>Notification</a>
+                </li>
+                <li>
+                    <a href="#">
+                        <ion-icon name="cog-outline"></ion-icon>
+                        </ion-icon>Settings</a>
+                </li>
+                <li>
+                    <a href="#">
+                        <ion-icon name="log-out-outline"></ion-icon>Logout</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="container-content">
+            <nav class="nav show">
+                <div class="nav-content">
+                    <div class="nav-separate" style="margin-top: 0;">
+                        Navegación
+                    </div>
+                    <ul>
+                        <li class="nav-li">
+                            <a href="/dashboard" onclick="setUrl('/dashboard'); return false;"><i class="fa-solid fa-gauge mr-10"></i> Inicio</a>
+                        </li>
+                        <li class="nav-li">
+                            <a href="#"><i class="fa-solid fa-cart-shopping mr-10"></i> Punto de venta</a>
+                        </li>
+                    </ul>
+                    <div class="nav-separate">
+                        MAS
+                    </div>
+                    <ul>
+                        <li class="nav-li level-1 mb-5" ul-id="ul1">
+                            <a href="javascript:;"><i class="fa-solid fa-lock mr-10"></i> Administrador <span class="nav-li-span float-right"><i class="fa-solid fa-angle-right"></i></span></a>
+                            <ul class="nav-ul-1" id="ul1">
+                                <li class="nav-li">
+                                    <a href="/admin/users" onclick="setUrl('/admin/users'); return false;"><i class="fa-regular fa-circle mr-5"></i> Usuarios</a>
+                                </li>
+                                <li class="nav-li">
+                                    <a href="/admin/products" onclick="setUrl('/admin/products'); return false;"><i class="fa-regular fa-circle mr-5"></i> Productos</a>
+                                </li>
+                                <li class="nav-li">
+                                    <a href="/admin/categories" onclick="setUrl('/admin/categories'); return false;"><i class="fa-regular fa-circle mr-5"></i> Categorias de productos</a>
+                                </li>
+                                <li class="nav-li">
+                                    <a href="/admin/locations" onclick="setUrl('/admin/locations'); return false;"><i class="fa-regular fa-circle mr-5"></i> Sucursales</a>
+                                </li>
+                                <li class="nav-li">
+                                    <a href="/admin/paymentmethods" onclick="setUrl('/admin/paymentmethods'); return false;"><i class="fa-regular fa-circle mr-5"></i> Metodos de pago</a>
+                                </li>
+                                <li class="nav-li">
+                                    <a href="/admin/cities" onclick="setUrl('/admin/cities'); return false;"><i class="fa-regular fa-circle mr-5"></i> Ciudades</a>
+                                </li>
+                                <li class="nav-li">
+                                    <a href="/admin/states" onclick="setUrl('/admin/states'); return false;"><i class="fa-regular fa-circle mr-5"></i> Estados</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-li level-1 mb-5" ul-id="ul2">
+                            <a href="#"><i class="fa-solid fa-user-tie mr-10"></i> Empleados <span class="nav-li-span float-right"><i class="fa-solid fa-angle-right"></i></span></a>
+                            <ul class="nav-ul-1" id="ul2">
+                                <li class="nav-li">
+                                    <a href="#"><i class="fa-regular fa-circle mr-5"></i> Ventas</a>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="content normal">
+                <div class="row" id="content">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/jquery-3.6.3.min.js"></script>
+    <script src="/static/js/pos.js"></script>
+    <script src="/static/others/fontawesome-6.2.1/js/all.min.js"></script>
+    <script src="/static/js/toast.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+</body>
+
+</html>

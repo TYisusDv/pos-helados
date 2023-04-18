@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto de venta</title>
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/static/css/auth.css">
+    <link rel="stylesheet" href="/static/others/fontawesome-6.2.1/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/gen.css">
+</head>
+<body>
+    <div id="toast"></div>
+    <div class="content">
+        <div class="form-content">
+            <div class="form">
+                <h1>Iniciar sesión</h1>
+                <form id="form-signIn" >
+                    <div class="group">
+                        <input type="text" name="email" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Correo electrónico</label>
+                    </div>
+                    <div class="group">
+                        <input type="password" name="pass" id="pass" required>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Contraseña</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" name="checkbox">
+                        <label for="checkbox">Mantenme conectado</label>
+                    </div>
+                    <div class="group" style="margin-top: 0px;">
+                        <button type="submit" id="btnSubmit">Iniciar sesión</button>
+                    </div>
+                </form>            
+            </div> 
+            <div class="form-img">
+                <img src="/static/images/logo.jpg">
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/jquery-3.6.3.min.js"></script>
+    <script src="/static/js/pos.js"></script>
+    <script src="/static/others/fontawesome-6.2.1/js/all.min.js"></script>
+    <script src="/static/js/toast.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#form-signIn").on('submit', (function(e) {
+                getCSRFToken();
+                e.preventDefault();
+    
+                $("#btnSubmit").prop("disabled", true);
+                
+                /*var passConf = checkPasswordStrength($("#pass").val());
+                if(passConf != "success"){
+                    toast({
+                        title: "¡Ha ocurrido un error!",
+                        message: passConf,
+                        type: "error",
+                        duration: 3000
+                    });
+                    $("#btnSubmit").prop("disabled", false);
+                    return false;
+                }*/
+                
+
+                $.ajax({
+                    url: `/api/v1/web/data/auth/sign-in`,
+                    type: 'post',
+                    data: new FormData(this),
+                    dataType: "json",
+                    processData: false,
+                    contentType: false,
+                    enctype: 'multipart/form-data',
+                    beforeSend: function(xhr, settings) {
+                        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                            xhr.setRequestHeader("X-CSRFToken", CSRFToken)
+                        }
+                    },
+                    success: function(response) {
+                        setTimeout(function() {  
+                            if(response.success == false){
+                                $("#btnSubmit").prop("disabled", false);
+                                toast({
+                                    title: "¡Ha ocurrido un error!",
+                                    message: response.msg,
+                                    type: "error",
+                                    duration: 3000
+                                });
+                                return false;
+                            }
+                            
+                            toast({
+                                title: "Redireccionando...",
+                                message: response.msg,
+                                type: "loader",
+                                close: false,
+                                duration: 999999
+                            });
+                            
+                            setTimeout(function() {
+                                var next = params.get('next');
+                                if(next == null || next == ""){
+                                    window.location.href = "/";
+                                    return true;
+                                }
+    
+                                window.location.href = next;
+                            }, 2000);
+    
+                            return true;
+                        }, 1000);
+                    },
+                    error: function(xhr) {
+                        setTimeout(function() {
+                            var response = JSON.parse(xhr.responseText);
+                            
+                            toast({
+                                title: "¡Ha ocurrido un error!",
+                                message: response.msg,
+                                type: "error",
+                                duration: 3000
+                            });
+    
+                            $("#btnSubmit").prop("disabled", false);
+                            return false;
+                        }, 1000);
+                    }
+                });
+            }));        
+        
+            function checkPasswordStrength(password) {                
+                var strength = 0;
+                var tips = "";
+                
+                if (password.length < 8) {
+                    tips += "Haga la contraseña más larga. ";
+                } else {
+                    strength += 1;
+                }
+                
+                if (password.match(/[a-z]/) && password.match(/[A-Z]/)) {
+                    strength += 1;
+                } else {
+                    tips += "Utilice letras minúsculas y mayúsculas. ";
+                }
+                
+                if (password.match(/\d/)) {
+                    strength += 1;
+                } else {
+                    tips += "Incluye al menos un número. ";
+                }
+                
+                if (password.match(/[^a-zA-Z\d]/)) {
+                    strength += 1;
+                } else {
+                    tips += "Incluya al menos un carácter especial. ";
+                }
+
+                if (strength < 2) {
+                    return "Fácil de adivinar. " + tips;
+                } else if (strength === 2) {
+                    return "Dificultad media. " + tips;
+                } else if (strength === 3) {
+                    return "Difícil. " + tips;
+                } else {
+                    return "success";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
