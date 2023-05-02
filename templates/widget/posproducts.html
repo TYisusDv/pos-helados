@@ -1,0 +1,15 @@
+{% for product in products %}
+<div class="product-grid2">
+    <div class="product-image2">
+        <a href="javascript:;" class="btn-modal" modalclass="modal-posquantity" onclick="setQu('{{product.pr_id}}')">
+            <img class="pic-1" src="/static/images/products/{{product.pr_img}}">
+            <img class="pic-2" src="/static/images/addcart.jpg">
+        </a>
+    </div>
+    <div class="product-content">
+        <h3 class="title"><a href="#">{{product.pr_name}}</a></h3>
+        <span>{{product.ca_name}}</span><br>
+        <span class="price">${{product.pr_price}}</span>
+    </div>
+</div>
+{% endfor %}

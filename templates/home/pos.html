@@ -1,0 +1,320 @@
+<div class="animate__animated animate__fadeIn">
+    <div class="box modal-posquantity">
+        <div class="overlay"></div>
+        <div class="modal__box">
+            <h3 class="modal__title">Cantidad</h3>
+            <form id="form-posquantity" action="javascript:;" class="w-100 center-2" autocomplete="off">
+                <p class="modal__text">
+                    <div class="group w-60per mt-0" style="display: none;">
+                        <input type="text" name="id" required readonly="readonly">
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                    </div>
+                    <div class="group w-60per mt-0">
+                        <input type="number" name="quantity" required value="1" min="1">
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Cantidad</label>
+                    </div>
+                </p>
+                <div class="buttons mt-30">
+                    <button class="btn modal__button modal__button--no btn-primary" modalclass="modal-posquantity" id="btnAdd" type="submit">Agregar</button>
+                    <button class="btn modal__button modal__button--no" modalclass="modal-posquantity" type="button">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="box modal-posedit">
+        <div class="overlay"></div>
+        <div class="modal__box">
+            <h3 class="modal__title">Cantidad</h3>
+            <form id="form-posedit" action="javascript:;" class="w-100 center-2" autocomplete="off">
+                <p class="modal__text">
+                    <div class="group w-60per mt-0" style="display: none;">
+                        <input type="text" name="id" required readonly="readonly">
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                    </div>
+                    <div class="group w-60per mt-0">
+                        <input type="number" name="quantity" required value="1" min="1">
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Cantidad</label>
+                    </div>
+                </p>
+                <div class="buttons mt-30">
+                    <button class="btn modal__button modal__button--no btn-primary" modalclass="modal-posedit" id="btnAdd" type="submit">Edit</button>
+                    <button class="btn modal__button modal__button--no" modalclass="modal-posedit" type="button">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <h1 class="content-title">Punto de venta</h1>
+    <div class="grid-2-left60">
+        <div class="panel bg-white">
+            <div class="group w-100 mt-15 mb-15">
+                <input type="text" id="posProductsSearch" required>
+                <span class="highlight"></span>
+                <span class="bar"></span>
+                <label>Buscar productos</label>
+            </div>
+            <div class="grid-5" id="posProductsTable">
+
+            </div>
+            <div class="item-list">
+                <ul class="pager" id="posProductsTablePager">
+
+                </ul>
+            </div>
+        </div>
+        <div class="panel bg-white">
+            <div class="bg-primary p-10 m-10">
+                <span style="font-size: 20px;"><b><i class="fa-solid fa-file-invoice-dollar"></i> Recibo:</b> <a href="javascript:;" style="color: white">#<span id="possaleno">{{sale.sa_no}}</span></a>
+                </span><br>
+                <span style="font-size: 15px;"><b><i class="fa-solid fa-calendar"></i> Fecha:</b> 10/01/2025 10:07:00</span>
+            </div>
+            <div class="dtable" style="height: 550px;">
+                <div class="table-responsive">
+                    <table class="data">
+                        <tbody id="postabledetails">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="bg-primary p-10 m-10">
+                <div class="grid-2">
+                    <div>
+                        <span style="font-size: 18px;"><b><i class="fa-solid fa-file-invoice-dollar"></i> SUBTOTAL:</b> $<span id="postabledetailssubtotal">0.00</span></span><br>
+                        <span style="font-size: 18px;"><b><i class="fa-solid fa-file-invoice-dollar"></i> CARGOS:</b> $0.00</span>
+                    </div>
+                    <div>
+                        <span style="font-size: 28px;"><b><i class="fa-solid fa-file-invoice-dollar"></i> TOTAL:</b> $<span id="postabledetailstotal">0.00</span></span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary w-100 mt-10">Finalizar <i class="fa-solid fa-circle-right"></i></button>
+        </div>
+
+    </div>
+</div>
+<script src="/static/js/modal.js"></script>
+<script>
+    var pagePos = 1;
+    var pageMaxPos = 1;
+    var typingTimer;
+    var btnPagerPre = `<li class="pager-item"><button class="btn" title="Ir a la página anterior" onclick="setpagePosPrevious();">‹</button></li>`;
+    var btnPagerNext = `<li class="pager-item"><button class="btn" id="btnPageNext" title="Ir a la página siguiente" onclick="setpagePosNext();">›</button></li>`;
+
+    $("#posProductsSearch").on("keyup", function() {
+        clearTimeout(typingTimer);
+
+        typingTimer = setTimeout(loadProducts, 1000);
+    });
+
+    loadProducts();
+
+    function loadProducts() {
+        $.ajax({
+            url: `/api/v1/web/widget/pos/products/table`,
+            type: 'post',
+            data: {
+                page: pagePos,
+                search: $("#posProductsSearch").val(),
+            },
+            dataType: "json",
+            enctype: 'multipart/form-data',
+            beforeSend: function(xhr, settings) {
+                $("#posProductsTable").html(`<div></div><div></div>${loader2}<div></div><div></div>`);
+
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken)
+                }
+            },
+            success: function(response) {
+                setTimeout(function() {
+                    if (response == false) {
+                        toast({
+                            title: "¡Ha ocurrido un error!",
+                            message: response.msg,
+                            type: "error",
+                            duration: 3000
+                        });
+                        return false;
+                    }
+
+                    var pager = "";
+                    pageMaxPos = response.pages;
+
+                    pager = pager + btnPagerPre;
+                    for (var i = 1; i <= pageMaxPos; i++) {
+                        pager = pager + `<li class="pager-item"><button class="btn" id="btnPosTPage-${i}" title="Ir a la página número ${i}" onclick="setpagePos('${i}');">${i}</button></li>`;
+                    }
+                    pager = pager + btnPagerNext;
+
+                    $("#posProductsTablePager").html(pager);
+                    $("#posProductsTable").html(response.html);
+                    return true;
+                }, 500);
+            },
+            error: function(xhr) {
+                setTimeout(function() {
+                    var response = JSON.parse(xhr.responseText);
+
+                    toast({
+                        title: "¡Ha ocurrido un error!",
+                        message: response.msg,
+                        type: "error",
+                        duration: 3000
+                    });
+
+                    return false;
+                }, 500);
+            }
+        });
+    }
+
+    loadDetails();
+
+    function loadDetails() {
+        $.ajax({
+            url: `/api/v1/web/widget/pos/details`,
+            type: 'post',
+            data: {
+                sa_no: $("#possaleno").html()
+            },
+            dataType: "json",
+            enctype: 'multipart/form-data',
+            beforeSend: function(xhr, settings) {
+                $("#postabledetails").html(`${loader2}`);
+
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken)
+                }
+            },
+            success: function(response) {
+                setTimeout(function() {
+                    if (response == false) {
+                        toast({
+                            title: "¡Ha ocurrido un error!",
+                            message: response.msg,
+                            type: "error",
+                            duration: 3000
+                        });
+                        return false;
+                    }
+
+                    $("#postabledetails").html(response.html);
+                    $("#postabledetailssubtotal").html(response.total);
+                    $("#postabledetailstotal").html(response.total);
+                    return true;
+                }, 500);
+            },
+            error: function(xhr) {
+                setTimeout(function() {
+                    var response = JSON.parse(xhr.responseText);
+
+                    toast({
+                        title: "¡Ha ocurrido un error!",
+                        message: response.msg,
+                        type: "error",
+                        duration: 3000
+                    });
+
+                    return false;
+                }, 500);
+            }
+        });
+    }
+
+    function setpagePosPrevious() {
+        setn = pagePos - 1;
+        if (setn <= 0) {
+            setn = 1
+        }
+
+        setpagePos(setn)
+    }
+
+    function setpagePosNext() {
+        setn = pagePos + 1;
+        if (setn >= pageMaxPos) {
+            setn = pageMaxPos
+        }
+        setpagePos(setn)
+    }
+
+    function setpagePos(num) {
+        pagePos = num;
+        loadProducts();
+    }
+
+    setPagePosCurrent();
+
+    function setPagePosCurrent() {
+        $(`#btnPosTPage-${page}`).attr("class", "btn pager-current");
+
+        setTimeout(function() {
+            setPagePosCurrent();
+        }, 500);
+    }
+
+    function setQu(id) {
+        $("#form-posquantity input[name=id]").val(id);
+    }
+
+    $("#form-posquantity").on("submit", (function(e) {
+        e.preventDefault();
+
+        $("#btnAdd").prop("disabled", true);
+
+        var formData = new FormData(this);
+        formData.append("sa_no", $("#possaleno").html())
+
+        $.ajax({
+            url: `/api/v1/web/data/pos/products/add`,
+            type: 'post',
+            data: formData,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            enctype: 'multipart/form-data',
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken)
+                }
+            },
+            success: function(response) {
+                $("#btnAdd").prop("disabled", false);
+
+                if (response.success == false) {
+                    toast({
+                        title: "¡Ha ocurrido un error!",
+                        message: response.msg,
+                        type: "error",
+                        duration: 3000
+                    });
+                    return false;
+                }
+
+                $("#form-posquantity input[name=quantity]").val("1");
+
+                loadDetails();
+                return true;
+            },
+            error: function(xhr) {
+                var response = JSON.parse(xhr.responseText);
+
+                toast({
+                    title: "¡Ha ocurrido un error!",
+                    message: response.msg,
+                    type: "error",
+                    duration: 3000
+                });
+
+                $("#btnAdd").prop("disabled", false);
+                return false;
+            }
+        });
+    }));
+</script>

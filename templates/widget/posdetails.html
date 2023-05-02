@@ -1,0 +1,9 @@
+{% for saledetail in saledetails %}
+<tr>
+    <td><img src="/static/images/products/{{saledetail.pr_img}}" class="img-product"></td>
+    <td>{{saledetail.pr_name}}</td>
+    <td>X {{saledetail.sd_quantity}}</td>
+    <td>${{saledetail.sd_price}}</td>
+    <td>${{saledetail.sd_quantity * saledetail.sd_price}}</td>
+</tr>
+{% endfor %}

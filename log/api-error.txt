@@ -1,2 +1,10 @@
 [E211] local variable 'ca_name' referenced before assignment
 
+[E537] 'Undefined' object cannot be interpreted as an integer
+
+[E556] (1048, "Column 'sa_no' cannot be null")
+
+[E556] (1048, "Column 'sa_no' cannot be null")
+
+[E98] 'pr_price'
+

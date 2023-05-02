@@ -59,6 +59,59 @@ def apiV4(path):
                     return json.dumps({"success": False, "code": 404, "msg": "Page not found."}), 404            
             elif validateSession == 1:
                 if splitURL1 == "data":
+                    if splitURL2 == "pos":
+                        if splitURL3 == "products": 
+                            if splitURL4 is None:
+                                return render_template("/widget/posproducts.html")
+                            elif splitURL4 == "add" and splitURL5 is None:
+                                if "sa_no" not in request.form or len(request.form["sa_no"]) <= 0:
+                                    return json.dumps({"success": False, "code": 200, "msg": "¡El numero del recibo está vacío! Llene el campo."}), 200 
+                                elif "id" not in request.form or len(request.form["id"]) <= 0:
+                                    return json.dumps({"success": False, "code": 200, "msg": "¡El ID del producto está vacío! Llene el campo."}), 200   
+                                elif "quantity" not in request.form or len(request.form["quantity"]) <= 0:
+                                    return json.dumps({"success": False, "code": 200, "msg": "¡La cantidad está vacía! Llene el campo."}), 200                     
+
+                                sa_no = request.form["sa_no"]
+                                pr_id = request.form["id"]
+                                sd_quantity = request.form["quantity"]
+
+                                if sd_quantity.isnumeric() is False:
+                                    return json.dumps({"success": False, "code": 200, "msg": "¡Cantidad es incorrecta! Por favor, corrígela y vuelva a intentarlo."}), 200        
+
+                                cur = mysql.connection.cursor()
+                                cur.execute("SELECT sa_sales.* FROM sa_sales WHERE sa_sales.sa_no = %s AND sa_sales.st_id = %s",(sa_no,27843,))
+                                sale = cur.fetchone()
+                                cur.close()
+
+                                if sale is None:
+                                    return json.dumps({"success": False, "code": 200, "msg": "¡No se encontró la venta! Contacte a un administrador."}), 200                 
+
+                                cur = mysql.connection.cursor()
+                                cur.execute("SELECT pr_products.* FROM pr_products WHERE pr_products.pr_id = %s AND pr_products.pr_status = %s",(pr_id,1,))
+                                product = cur.fetchone()
+                                cur.close()
+
+                                if product is None:
+                                    return json.dumps({"success": False, "code": 200, "msg": "¡No se encontró el producto! Contacte a un administrador."}), 200   
+
+                                cur = mysql.connection.cursor()
+                                cur.execute("SELECT sd_saledetails.* FROM sd_saledetails WHERE sd_saledetails.pr_id = %s AND sd_saledetails.sa_id = %s",(pr_id,sale["sa_id"],))
+                                saledetail = cur.fetchone()
+                                cur.close()
+
+                                if saledetail is None:
+                                    cur = mysql.connection.cursor()
+                                    cur.execute("INSERT INTO sd_saledetails(sd_price, sd_quantity, sa_id, pr_id) VALUES(%s, %s, %s, %s)",(product["pr_price"],sd_quantity,sale["sa_id"],pr_id,))
+                                    mysql.connection.commit()
+                                    cur.close()
+                                else:
+                                    cur = mysql.connection.cursor()
+                                    cur.execute("UPDATE sd_saledetails SET sd_quantity = sd_quantity + %s WHERE pr_id = %s AND sa_id = %s",(sd_quantity,pr_id,sale["sa_id"],))
+                                    mysql.connection.commit()
+                                    cur.close()
+
+                                return json.dumps({"success": True, "code": 200, "msg": "El producto se agregó correctamente."}), 200
+
                     if splitURL2 == "admin":
                         if splitURL3 == "users":
                             if splitURL4 == "add" and splitURL5 is None:
@@ -531,7 +584,87 @@ def apiV4(path):
 
                 if splitURL1 == "widget":
                     if splitURL2 == "dashboard" and splitURL3 is None:
-                        return json.dumps({"success": True, "code": 200, "html": render_template("/home/dashboard.html")}), 200  
+                        return json.dumps({"success": True, "code": 200, "html": render_template("/home/dashboard.html")}), 200 
+
+                    if splitURL2 == "pos":
+                        if splitURL3 is None:
+                            while True:                            
+                                cur = mysql.connection.cursor()
+                                cur.execute("SELECT sa_sales.* FROM sa_sales WHERE us_id = %s AND st_id = %s ORDER BY sa_sales.sa_date DESC LIMIT 1", (session["us_id"], 27843,))
+                                sale = cur.fetchone()
+                                cur.close()
+
+                                if sale is None:
+                                    sa_id = str(uuid.uuid1())
+                                    cur = mysql.connection.cursor()
+                                    cur.execute("INSERT INTO sa_sales(sa_id, sa_no, sa_date, us_id, st_id) VALUES(%s, %s, %s, %s, %s)",(sa_id, str(random.randint(100000,999999)), date_today_sql, session["us_id"],27843,))
+                                    mysql.connection.commit()
+                                    cur.close()
+                                else:
+                                    break
+                             
+                            return json.dumps({"success": True, "code": 200, "html": render_template("/home/pos.html", sale = sale)}), 200  
+                        
+                        elif splitURL3 == "details" and splitURL4 is None:
+                            if "sa_no" not in request.form or len(request.form["sa_no"]) <= 0:
+                                return json.dumps({"success": False, "code": 200, "msg": "¡El numero del recibo está vacío! Llene el campo."}), 200              
+
+                            sa_no = request.form["sa_no"]
+
+                            cur = mysql.connection.cursor()
+                            cur.execute("SELECT sa_sales.* FROM sa_sales WHERE sa_sales.sa_no = %s AND sa_sales.st_id = %s",(sa_no,27843,))
+                            sale = cur.fetchone()
+                            cur.close()
+
+                            if sale is None:
+                                return json.dumps({"success": False, "code": 200, "msg": "¡No se encontró la venta! Contacte a un administrador."}), 200  
+                             
+                            cur = mysql.connection.cursor()
+                            cur.execute("SELECT sd_saledetails.*, pr_products.pr_name, pr_products.pr_img FROM sd_saledetails INNER JOIN pr_products ON pr_products.pr_id = sd_saledetails.pr_id WHERE sd_saledetails.sa_id = %s", (sale["sa_id"],))
+                            saledetails = cur.fetchall()
+                            cur.close()
+
+                            total = 0
+                            for saledetail in saledetails:
+                                total = total + (saledetail["sd_quantity"] * saledetail["sd_price"])
+
+                            return json.dumps({"success": True, "code": 200, "html": render_template("/widget/posdetails.html", saledetails = saledetails), "total": total}), 200  
+                        
+                        elif splitURL3 == "products":
+                            if splitURL4 == "table" and splitURL5 is None:
+                                if "search" not in request.form:
+                                    return json.dumps({"success": False, "code": 200, "msg": "El buscador está vacío."}), 200
+                                elif "page" not in request.form or len(request.form["page"]) <= 0:
+                                    return json.dumps({"success": False, "code": 200, "msg": "La página está vacía."}), 200                        
+
+                                search = request.form["search"]
+                                page = request.form["page"]
+                                quantityShow = 10
+                                like = f"%{search}%"   
+
+                                if page.isnumeric() is False:
+                                    return json.dumps({"success": False, "code": 200, "msg": "¡Página no encontrada! Por favor, corrígela y vuelva a intentarlo."}), 200        
+
+                                page = int(page)
+
+                                if page <= 0:
+                                    page = 1
+
+                                page_start = (page - 1) * quantityShow
+
+                                cur = mysql.connection.cursor()
+                                cur.execute("SELECT pr_products.*, ca_categories.ca_name FROM pr_products INNER JOIN ca_categories ON ca_categories.ca_id = pr_products.ca_id WHERE pr_products.pr_status = %s AND (pr_products.pr_name LIKE %s OR ca_categories.ca_name LIKE %s) LIMIT %s, %s", (1,like,like,page_start,quantityShow,))
+                                products = cur.fetchall()
+                                cur.close()
+
+                                cur = mysql.connection.cursor()
+                                cur.execute("SELECT COUNT(*) AS total FROM pr_products INNER JOIN ca_categories ON ca_categories.ca_id = pr_products.ca_id WHERE pr_products.pr_status = %s AND (pr_products.pr_name LIKE %s OR ca_categories.ca_name LIKE %s)", (1,like,like,))
+                                total = cur.fetchone()["total"]
+                                cur.close()
+
+                                pages = math.ceil(total / quantityShow)
+
+                                return json.dumps({"success": True, "code": 200, "html": render_template("/widget/posproducts.html", products = products), "pages": pages}), 200  
 
                     if splitURL2 == "admin":
                         if splitURL3 == "users":
