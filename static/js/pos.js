@@ -17,7 +17,12 @@ var page = 1;
 var page_max = 1;
 
 getCSRFToken();
-setUrl(WLPathname);
+
+if (WLPathname == "/") {
+    setUrl(ruteMain);
+} else {
+    setUrl(WLPathname);
+}
 
 function getCSRFToken() {
     $.ajax({
@@ -74,6 +79,10 @@ $(".nav-li.level-1").click(function() {
 
 function setUrl(url) {
     if (load == false) {
+        page = 1;
+        page_max = 1;
+        table_search = "";
+
         load = true;
 
         history.pushState(null, `Enigma TM`, url);

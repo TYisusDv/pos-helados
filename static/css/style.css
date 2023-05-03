@@ -213,6 +213,16 @@ body {
     color: white;
 }
 
+.bg-info {
+    background: #A7C7E7;
+    color: white;
+}
+
+.bg-warning {
+    background: #ffcc00;
+    color: white;
+}
+
 .bor-primary {
     border: 4px dashed var(--color-primary);
 }

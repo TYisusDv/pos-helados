@@ -1,9 +1,9 @@
 {% for saledetail in saledetails %}
-<tr>
-    <td><img src="/static/images/products/{{saledetail.pr_img}}" class="img-product"></td>
-    <td>{{saledetail.pr_name}}</td>
-    <td>X {{saledetail.sd_quantity}}</td>
-    <td>${{saledetail.sd_price}}</td>
-    <td>${{saledetail.sd_quantity * saledetail.sd_price}}</td>
+<tr class="btn-modal" modalclass="modal-posedit" onclick="setEdit('{{saledetail.sd_id}}', '{{saledetail.sd_quantity}}')">
+    <td style="cursor: pointer;"><img src="/static/images/products/{{saledetail.pr_img}}" class="img-product"></td>
+    <td style="cursor: pointer;">{{saledetail.pr_name}}</td>
+    <td style="cursor: pointer;">X {{saledetail.sd_quantity}}</td>
+    <td style="cursor: pointer;">${{saledetail.sd_price}}</td>
+    <td style="cursor: pointer;">${{saledetail.sd_quantity * saledetail.sd_price}}</td>
 </tr>
 {% endfor %}

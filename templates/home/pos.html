@@ -36,15 +36,51 @@
                         <span class="bar"></span>
                     </div>
                     <div class="group w-60per mt-0">
-                        <input type="number" name="quantity" required value="1" min="1">
+                        <input type="number" name="quantity" required value="1" min="0">
                         <span class="highlight"></span>
                         <span class="bar"></span>
                         <label>Cantidad</label>
                     </div>
                 </p>
                 <div class="buttons mt-30">
-                    <button class="btn modal__button modal__button--no btn-primary" modalclass="modal-posedit" id="btnAdd" type="submit">Edit</button>
+                    <button class="btn modal__button modal__button--no btn-primary" modalclass="modal-posedit" id="btnEdit" type="submit">Edit</button>
                     <button class="btn modal__button modal__button--no" modalclass="modal-posedit" type="button">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="box modal-posfin">
+        <div class="overlay"></div>
+        <div class="modal__box">
+            <h3 class="modal__title">Finalizar</h3>
+            <form id="form-posfin" action="javascript:;" class="w-100 center-2" autocomplete="off">
+                <p class="modal__text">
+                    <div class="group w-60per mt-0">
+                        <select name="location" class="w-100">
+                            <option value="0">Selecciona la sucursal</option>
+                            {% for location in locations %}
+                            <option value="{{location.lo_id}}">{{location.lo_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="group w-60per">
+                        <select name="paymentmethod" class="w-100">
+                            <option value="0">Metodo de pago</option>
+                            {% for paymentmethod in paymentmethods %}
+                            <option value="{{paymentmethod.pm_id}}">{{paymentmethod.pm_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="group w-60per">
+                        <input type="number" name="pay" min="0">
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Pago</label>
+                    </div>
+                </p>
+                <div class="buttons mt-30">
+                    <button class="btn modal__button modal__button--no btn-primary" modalclass="modal-posfin" id="btnFin" type="submit">Finalizar</button>
+                    <button class="btn modal__button modal__button--no" modalclass="modal-posfin" type="button">Cerrar</button>
                 </div>
             </form>
         </div>
@@ -85,15 +121,15 @@
             <div class="bg-primary p-10 m-10">
                 <div class="grid-2">
                     <div>
-                        <span style="font-size: 18px;"><b><i class="fa-solid fa-file-invoice-dollar"></i> SUBTOTAL:</b> $<span id="postabledetailssubtotal">0.00</span></span><br>
-                        <span style="font-size: 18px;"><b><i class="fa-solid fa-file-invoice-dollar"></i> CARGOS:</b> $0.00</span>
+                        <span style="font-size: 18px;"><b><i class="fa-solid fa-dollar-sign"></i> SUBTOTAL:</b> $<span id="postabledetailssubtotal">0.00</span></span><br>
+                        <span style="font-size: 18px;"><b><i class="fa-solid fa-percent"></i> CARGOS:</b> $0.00</span>
                     </div>
                     <div>
-                        <span style="font-size: 28px;"><b><i class="fa-solid fa-file-invoice-dollar"></i> TOTAL:</b> $<span id="postabledetailstotal">0.00</span></span>
+                        <span style="font-size: 28px;"><b><i class="fa-solid fa-hand-holding-dollar"></i> TOTAL:</b> $<span id="postabledetailstotal">0.00</span></span>
                     </div>
                 </div>
             </div>
-            <button class="btn btn-primary w-100 mt-10">Finalizar <i class="fa-solid fa-circle-right"></i></button>
+            <button class="btn btn-primary w-100 mt-10 btn-modal" modalclass="modal-posfin">Finalizar <i class="fa-solid fa-circle-right"></i></button>
         </div>
 
     </div>
@@ -263,6 +299,11 @@
         $("#form-posquantity input[name=id]").val(id);
     }
 
+    function setEdit(id, quantity) {
+        $("#form-posedit input[name=id]").val(id);
+        $("#form-posedit input[name=quantity]").val(quantity);
+    }
+
     $("#form-posquantity").on("submit", (function(e) {
         e.preventDefault();
 
@@ -313,6 +354,124 @@
                 });
 
                 $("#btnAdd").prop("disabled", false);
+                return false;
+            }
+        });
+    }));
+
+    $("#form-posedit").on("submit", (function(e) {
+        e.preventDefault();
+
+        $("#btnEdit").prop("disabled", true);
+
+        var formData = new FormData(this);
+        formData.append("sa_no", $("#possaleno").html())
+
+        $.ajax({
+            url: `/api/v1/web/data/pos/products/edit`,
+            type: 'post',
+            data: formData,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            enctype: 'multipart/form-data',
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken)
+                }
+            },
+            success: function(response) {
+                $("#btnEdit").prop("disabled", false);
+
+                if (response.success == false) {
+                    toast({
+                        title: "¡Ha ocurrido un error!",
+                        message: response.msg,
+                        type: "error",
+                        duration: 3000
+                    });
+                    return false;
+                }
+
+                loadDetails();
+                return true;
+            },
+            error: function(xhr) {
+                var response = JSON.parse(xhr.responseText);
+
+                toast({
+                    title: "¡Ha ocurrido un error!",
+                    message: response.msg,
+                    type: "error",
+                    duration: 3000
+                });
+
+                $("#btnEdit").prop("disabled", false);
+                return false;
+            }
+        });
+    }));
+
+    $("#form-posfin").on("submit", (function(e) {
+        e.preventDefault();
+
+        $("#btnFin").prop("disabled", true);
+
+        var formData = new FormData(this);
+        formData.append("sa_no", $("#possaleno").html())
+
+        $.ajax({
+            url: `/api/v1/web/data/pos/fin`,
+            type: 'post',
+            data: formData,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            enctype: 'multipart/form-data',
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRFToken)
+                }
+            },
+            success: function(response) {
+                $("#btnFin").prop("disabled", false);
+
+                if (response.success == false) {
+                    toast({
+                        title: "¡Ha ocurrido un error!",
+                        message: response.msg,
+                        type: "error",
+                        duration: 3000
+                    });
+                    return false;
+                }
+
+                toast({
+                    title: "Recargando...",
+                    message: response.msg,
+                    type: "loader",
+                    close: false,
+                    duration: 1000
+                });
+
+                setTimeout(function() {
+                    window.open('/api/v1/ticket/{{sale.sa_id}}', 'Helados Alexia - Ticket {{sale.sa_no}}', 'width=410,height=900,top=100,left=100,toolbar=no');
+                    setUrl('/pos');
+                }, 1000);
+
+                return true;
+            },
+            error: function(xhr) {
+                var response = JSON.parse(xhr.responseText);
+
+                toast({
+                    title: "¡Ha ocurrido un error!",
+                    message: response.msg,
+                    type: "error",
+                    duration: 3000
+                });
+
+                $("#btnFin").prop("disabled", false);
                 return false;
             }
         });

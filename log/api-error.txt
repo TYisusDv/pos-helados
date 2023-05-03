@@ -8,3 +8,27 @@
 
 [E98] 'pr_price'
 
+[E631] 'product' is undefined
+
+[E142] '<=' not supported between instances of 'str' and 'int'
+
+[E197] (1452, 'Cannot add or update a child row: a foreign key constraint fails (`pos`.`sa_sales`, CONSTRAINT `sa_sales_ibfk_3` FOREIGN KEY (`lo_id`) REFERENCES `lo_locations` (`lo_id`) ON DELETE RESTRICT ON UPDATE RESTRICT)')
+
+[E197] (1452, 'Cannot add or update a child row: a foreign key constraint fails (`pos`.`sa_sales`, CONSTRAINT `sa_sales_ibfk_3` FOREIGN KEY (`lo_id`) REFERENCES `lo_locations` (`lo_id`) ON DELETE RESTRICT ON UPDATE RESTRICT)')
+
+[E34] expected token 'in', got 'on'
+
+[E34] expected token 'in', got 'on'
+
+[E34] expected token 'in', got 'on'
+
+[E34] expected token 'in', got 'on'
+
+[E208] '<' not supported between instances of 'str' and 'float'
+
+[E815] (1146, "Table 'pos.sa_sale' doesn't exist")
+
+[E815] (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'DES LIMIT 0, 10' at line 1")
+
+[E815] (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'ORDER BY sa_sales.sa_date DES' at line 1")
+

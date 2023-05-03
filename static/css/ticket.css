@@ -1,0 +1,42 @@
+.ticket {
+    border: 1px solid #ccc;
+    padding: 20px;
+    width: 400px;
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+thead {
+    background-color: #ccc;
+}
+
+th {
+    text-align: left;
+    padding: 5px;
+}
+
+tbody td {
+    border-bottom: 1px solid #ccc;
+    padding: 5px;
+}
+
+tfoot td {
+    text-align: right;
+    padding: 5px;
+    border-top: 1px solid #ccc;
+}
+
+strong {
+    font-weight: bold;
+    margin-right: 5px;
+}

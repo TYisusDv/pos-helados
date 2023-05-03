@@ -1,0 +1,31 @@
+<div class="animate__animated animate__fadeIn">
+    <h1 class="content-title">Ventas</h1>
+    <div class="grid-3">
+        <div class="panel-primary bg-white panel-mini">
+            <div>
+                <h4 class="panel-title">Ventas Finalizadas</h4>
+                <h3 class="panel-number">{{totalFin}}</h3>
+            </div>
+            <div class="center">
+                <i class="fa-solid fa-bag-shopping fs-30 color-dark"></i>
+            </div>
+        </div>
+    </div>
+    <div class="grid-1 mt-30">
+        <div class="panel bg-white" id="contentTable">
+
+        </div>
+    </div>
+</div>
+<script src="/static/js/modal.js"></script>
+<script>
+    firstLoad = true;
+    table_url = "/employee/sales/table";
+    loadWidgetTable();
+
+
+
+    function openTicket(id) {
+        window.open('/api/v1/ticket/' + id, 'Helados Alexia - Ticket', 'width=410,height=900,top=100,left=100,toolbar=no');
+    }
+</script>

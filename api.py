@@ -111,6 +111,114 @@ def apiV4(path):
                                     cur.close()
 
                                 return json.dumps({"success": True, "code": 200, "msg": "El producto se agregó correctamente."}), 200
+                            elif splitURL4 == "edit" and splitURL5 is None:
+                                if "sa_no" not in request.form or len(request.form["sa_no"]) <= 0:
+                                    return json.dumps({"success": False, "code": 200, "msg": "¡El numero del recibo está vacío! Llene el campo."}), 200 
+                                elif "id" not in request.form or len(request.form["id"]) <= 0:
+                                    return json.dumps({"success": False, "code": 200, "msg": "¡El ID del producto está vacío! Llene el campo."}), 200   
+                                elif "quantity" not in request.form or len(request.form["quantity"]) <= 0:
+                                    return json.dumps({"success": False, "code": 200, "msg": "¡La cantidad está vacía! Llene el campo."}), 200                     
+
+                                sa_no = request.form["sa_no"]
+                                sd_id = request.form["id"]
+                                sd_quantity = request.form["quantity"]
+
+                                if api_isfloat(sd_quantity) is False:
+                                    return json.dumps({"success": False, "code": 200, "msg": "¡Cantidad es incorrecta! Por favor, corrígela y vuelva a intentarlo."}), 200        
+
+                                sd_quantity = float(sd_quantity)
+
+                                cur = mysql.connection.cursor()
+                                cur.execute("SELECT sa_sales.* FROM sa_sales WHERE sa_sales.sa_no = %s AND sa_sales.st_id = %s",(sa_no,27843,))
+                                sale = cur.fetchone()
+                                cur.close()
+
+                                if sale is None:
+                                    return json.dumps({"success": False, "code": 200, "msg": "¡No se encontró la venta! Contacte a un administrador."}), 200                   
+
+                                cur = mysql.connection.cursor()
+                                cur.execute("SELECT sd_saledetails.* FROM sd_saledetails WHERE sd_saledetails.sd_id = %s AND sd_saledetails.sa_id = %s",(sd_id,sale["sa_id"],))
+                                saledetail = cur.fetchone()
+                                cur.close()
+
+                                if sd_quantity <= 0:
+                                    cur = mysql.connection.cursor()
+                                    cur.execute("DELETE FROM sd_saledetails WHERE sd_id = %s AND sa_id = %s",(sd_id,sale["sa_id"],))
+                                    mysql.connection.commit()
+                                    cur.close()
+                                else:
+                                    cur = mysql.connection.cursor()
+                                    cur.execute("UPDATE sd_saledetails SET sd_quantity = %s WHERE sd_id = %s AND sa_id = %s",(sd_quantity,sd_id,sale["sa_id"],))
+                                    mysql.connection.commit()
+                                    cur.close()
+
+                                return json.dumps({"success": True, "code": 200, "msg": "El producto se agregó correctamente."}), 200                            
+
+                        elif splitURL3 == "fin" and splitURL4 is None:
+                            if "sa_no" not in request.form or len(request.form["sa_no"]) <= 0:
+                                return json.dumps({"success": False, "code": 200, "msg": "¡El numero del recibo está vacío! Llene el campo."}), 200 
+                            elif "location" not in request.form or len(request.form["location"]) <= 0:
+                                return json.dumps({"success": False, "code": 200, "msg": "¡La sucursal está vacía! Llene el campo."}), 200   
+                            elif "paymentmethod" not in request.form or len(request.form["paymentmethod"]) <= 0:
+                                return json.dumps({"success": False, "code": 200, "msg": "¡El metodo de pago esta vacío! Llene el campo."}), 200    
+                            elif "pay" not in request.form or len(request.form["pay"]) <= 0:
+                                return json.dumps({"success": False, "code": 200, "msg": "¡La cantidad está vacía! Llene el campo."}), 200                     
+
+                            sa_no = request.form["sa_no"]
+                            location = request.form["location"]
+                            paymentmethod = request.form["paymentmethod"] 
+                            pay = request.form["pay"] 
+
+                            if api_isfloat(pay) is False:
+                                return json.dumps({"success": False, "code": 200, "msg": "¡El pago es incorrecto! Verifíquelo e intente de nuevo."}), 200   
+
+                            pay = float(pay)
+
+                            cur = mysql.connection.cursor()
+                            cur.execute("SELECT lo_locations.* FROM lo_locations WHERE lo_locations.lo_id = %s AND lo_locations.lo_status = %s",(location,1,))
+                            locations = cur.fetchone()
+                            cur.close()
+
+                            if locations is None:
+                                return json.dumps({"success": False, "code": 200, "msg": "¡No se encontró la sucursal! Contacte a un administrador."}), 200    
+
+                            cur = mysql.connection.cursor()
+                            cur.execute("SELECT pm_paymentmethods.* FROM pm_paymentmethods WHERE pm_paymentmethods.pm_id = %s AND pm_paymentmethods.pm_status = %s",(paymentmethod,1,))
+                            paymentmethods = cur.fetchone()
+                            cur.close()
+
+                            if paymentmethods is None:
+                                return json.dumps({"success": False, "code": 200, "msg": "¡No se encontró el metodo de pago! Contacte a un administrador."}), 200    
+                            
+                            cur = mysql.connection.cursor()
+                            cur.execute("SELECT sa_sales.* FROM sa_sales WHERE sa_sales.sa_no = %s AND sa_sales.st_id = %s",(sa_no,27843,))
+                            sale = cur.fetchone()
+                            cur.close()
+
+                            if sale is None:
+                                return json.dumps({"success": False, "code": 200, "msg": "¡No se encontró la venta! Contacte a un administrador."}), 200   
+
+                            cur = mysql.connection.cursor()
+                            cur.execute("SELECT sd_saledetails.* FROM sd_saledetails WHERE sd_saledetails.sa_id = %s",(sale["sa_id"],))
+                            saledetails = cur.fetchall()
+                            cur.close()
+
+                            if saledetails is None or len(saledetails) <= 0:
+                                return json.dumps({"success": False, "code": 200, "msg": "¡No se encontró articulos en la venta! Verifíquelo e intente de nuevo."}), 200 
+
+                            total = 0
+                            for saledetail in saledetails:
+                                total = total + (saledetail["sd_quantity"] * saledetail["sd_price"]) 
+
+                            if pay < total:
+                                return json.dumps({"success": False, "code": 200, "msg": "¡No se completó la venta! Verifique con cuanto pago."}), 200 
+
+                            cur = mysql.connection.cursor()
+                            cur.execute("UPDATE sa_sales SET sa_pay = %s, pm_id = %s, lo_id = %s, st_id = %s, sa_date = %s WHERE sa_id = %s",(pay, paymentmethod, location, 366175, date_today_sql, sale["sa_id"],))
+                            mysql.connection.commit()
+                            cur.close()
+                            
+                            return json.dumps({"success": True, "code": 200, "msg": "Venta finalizada correctamente."}), 200 
 
                     if splitURL2 == "admin":
                         if splitURL3 == "users":
@@ -588,6 +696,16 @@ def apiV4(path):
 
                     if splitURL2 == "pos":
                         if splitURL3 is None:
+                            cur = mysql.connection.cursor()
+                            cur.execute("SELECT lo_locations.* FROM lo_locations WHERE lo_locations.lo_status = %s",(1,))
+                            locations = cur.fetchall()
+                            cur.close() 
+
+                            cur = mysql.connection.cursor()
+                            cur.execute("SELECT pm_paymentmethods.* FROM pm_paymentmethods WHERE pm_paymentmethods.pm_status = %s",(1,))
+                            paymentmethods = cur.fetchall()
+                            cur.close()    
+                             
                             while True:                            
                                 cur = mysql.connection.cursor()
                                 cur.execute("SELECT sa_sales.* FROM sa_sales WHERE us_id = %s AND st_id = %s ORDER BY sa_sales.sa_date DESC LIMIT 1", (session["us_id"], 27843,))
@@ -603,7 +721,7 @@ def apiV4(path):
                                 else:
                                     break
                              
-                            return json.dumps({"success": True, "code": 200, "html": render_template("/home/pos.html", sale = sale)}), 200  
+                            return json.dumps({"success": True, "code": 200, "html": render_template("/home/pos.html", sale = sale, locations = locations, paymentmethods = paymentmethods)}), 200  
                         
                         elif splitURL3 == "details" and splitURL4 is None:
                             if "sa_no" not in request.form or len(request.form["sa_no"]) <= 0:
@@ -666,6 +784,71 @@ def apiV4(path):
 
                                 return json.dumps({"success": True, "code": 200, "html": render_template("/widget/posproducts.html", products = products), "pages": pages}), 200  
 
+                    if splitURL2 == "employee":
+                        if splitURL3 == "sales":
+                            if splitURL4 is None:
+                                cur = mysql.connection.cursor()
+                                cur.execute("SELECT COUNT(*) AS total FROM sa_sales WHERE sa_sales.st_id = %s", (366175,))
+                                totalFin = cur.fetchone()["total"]
+                                cur.close()
+
+                                return json.dumps({"success": True, "code": 200, "html": render_template("/employee/sales.html", totalFin = totalFin)}), 200 
+                            elif splitURL4 == "table" and splitURL5 is None:
+                                if "search" not in request.form:
+                                    return json.dumps({"success": False, "code": 200, "msg": "El buscador está vacío."}), 200
+                                elif "page" not in request.form or len(request.form["page"]) <= 0:
+                                    return json.dumps({"success": False, "code": 200, "msg": "La página está vacía."}), 200                        
+
+                                search = request.form["search"]
+                                page = request.form["page"]
+                                quantityShow = 10
+                                like = f"%{search}%"   
+
+                                if page.isnumeric() is False:
+                                    return json.dumps({"success": False, "code": 200, "msg": "¡Página no encontrada! Por favor, corrígela y vuelva a intentarlo."}), 200        
+
+                                page = int(page)
+
+                                if page <= 0:
+                                    page = 1
+
+                                page_start = (page - 1) * quantityShow
+
+                                columns = ["ID", "Empleado", "Sucursal", "Método de pago", "Fecha de registro", "Estado", "Acciones"]
+
+                                cur = mysql.connection.cursor()
+                                cur.execute("SELECT sa_sales.*, DATE_FORMAT(sa_sales.sa_date, '%%d/%%m/%%Y %%H:%%i %%p') AS sa_date_2, us_users.us_fullname, lo_locations.lo_name, pm_paymentmethods.pm_name FROM sa_sales INNER JOIN us_users ON us_users.us_id = sa_sales.us_id LEFT JOIN lo_locations ON lo_locations.lo_id = sa_sales.lo_id LEFT JOIN pm_paymentmethods ON pm_paymentmethods.pm_id = sa_sales.pm_id WHERE sa_sales.sa_id LIKE %s OR sa_sales.sa_no LIKE %s OR sa_sales.sa_date LIKE %s OR us_users.us_fullname LIKE %s OR lo_locations.lo_name LIKE %s OR pm_paymentmethods.pm_name LIKE %s ORDER BY sa_sales.sa_date DESC LIMIT %s, %s", (like, like, like, like, like, like, page_start, quantityShow,))
+                                sales = cur.fetchall()
+                                cur.close()
+
+                                rows = []
+                                for sale in sales:
+                                    location = "-"
+                                    if sale["lo_id"] is not None:
+                                        location = sale["lo_name"]
+
+                                    paymentmethod = "-"
+                                    if sale["pm_id"] is not None:
+                                        paymentmethod = sale["pm_name"]
+
+                                    status = f"<span class='badge bg-success'><i class='fa-solid fa-check'></i> Venta finalizada</span>"
+                                    actions = f"""<button class='btn btn-primary' onclick='openTicket("{sale["sa_id"]}")'><i class='fa-solid fa-file-invoice-dollar'></i> Ticket</button>"""
+
+                                    if sale["st_id"] == 27843:
+                                        status = f"<span class='badge bg-warning'><i class='fas fa-spinner fa-pulse'></i> Venta activa</span>"   
+                                        actions = ""                                    
+
+                                    rows.append([f"<span class='badge bg-primary'><i class='fa-solid fa-fingerprint'></i> {sale['sa_no']}</span>", sale["us_fullname"], location, paymentmethod, sale["sa_date_2"], status, actions])
+
+                                cur = mysql.connection.cursor()
+                                cur.execute("SELECT COUNT(*) AS total FROM sa_sales INNER JOIN us_users ON us_users.us_id = sa_sales.us_id LEFT JOIN lo_locations ON lo_locations.lo_id = sa_sales.lo_id LEFT JOIN pm_paymentmethods ON pm_paymentmethods.pm_id = sa_sales.pm_id WHERE sa_sales.sa_id LIKE %s OR sa_sales.sa_no LIKE %s OR sa_sales.sa_date LIKE %s OR us_users.us_fullname LIKE %s OR lo_locations.lo_name LIKE %s OR pm_paymentmethods.pm_name LIKE %s ORDER BY sa_sales.sa_date DESC", (like, like, like, like, like, like,))
+                                total = cur.fetchone()["total"]
+                                cur.close()
+
+                                pages = math.ceil(total / quantityShow)
+
+                                return json.dumps({"success": True, "code": 200, "html": render_template("/widget/table.html", columns = columns, rows = rows, pages = pages)}), 200
+                        
                     if splitURL2 == "admin":
                         if splitURL3 == "users":
                             if splitURL4 is None:
@@ -786,7 +969,7 @@ def apiV4(path):
                                 columns = ["Imagen", "ID", "Código de barras", "Nombre", "Categoria", "Precio", "Estado", "Fecha de registro", "Acciones"]
 
                                 cur = mysql.connection.cursor()
-                                cur.execute("SELECT pr_products.*, ca_categories.ca_name, DATE_FORMAT(pr_products.pr_regdate, '%%d/%%m/%%Y %%H:%%i:%%s') AS pr_regdate_2 FROM pr_products INNER JOIN ca_categories ON ca_categories.ca_id = pr_products.ca_id LIMIT %s, %s", (page_start, quantityShow,))
+                                cur.execute("SELECT pr_products.*, ca_categories.ca_name, DATE_FORMAT(pr_products.pr_regdate, '%%d/%%m/%%Y %%H:%%i:%%s') AS pr_regdate_2 FROM pr_products INNER JOIN ca_categories ON ca_categories.ca_id = pr_products.ca_id WHERE pr_products.pr_id LIKE %s OR pr_products.pr_name LIKE %s OR pr_products.pr_regdate LIKE %s OR ca_categories.ca_name LIKE %s LIMIT %s, %s", (like, like, like, like, page_start, quantityShow,))
                                 products = cur.fetchall()
                                 cur.close()
 
@@ -799,7 +982,7 @@ def apiV4(path):
                                     rows.append([f"<img src='/static/images/products/{product['pr_img']}' class='img-product'>", f"<span class='badge bg-primary'><i class='fa-solid fa-fingerprint'></i> {product['pr_id']}</span>", f"<img class='pr_barcode' data-value='{product['pr_id']}'>", product["pr_name"], product["ca_name"], f"${product['pr_price']}", status, product["pr_regdate_2"], f"""<button class='btn btn-primary btn-modal' modalclass='modal-edit' onclick='setEdit("{product['pr_id']}", "{product['ca_id']}", "{product['pr_name']}", "{product['pr_price']}", "{product['pr_status']}")'><i class='fa-solid fa-pen-to-square'></i> Editar</button>"""])
 
                                 cur = mysql.connection.cursor()
-                                cur.execute("SELECT COUNT(*) AS total FROM us_users INNER JOIN tu_typesusers ON tu_typesusers.tu_id = us_users.tu_id WHERE us_users.us_id LIKE %s OR us_users.us_fullname LIKE %s OR us_users.us_email LIKE %s",(like, like, like,))
+                                cur.execute("SELECT COUNT(*) AS total FROM pr_products INNER JOIN ca_categories ON ca_categories.ca_id = pr_products.ca_id WHERE pr_products.pr_id LIKE %s OR pr_products.pr_name LIKE %s OR pr_products.pr_regdate LIKE %s OR ca_categories.ca_name LIKE %s",(like, like, like, like,))
                                 total = cur.fetchone()["total"]
                                 cur.close()
 

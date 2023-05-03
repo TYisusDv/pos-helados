@@ -33,24 +33,7 @@
             </div>
             <ul class="nav-top-user-menu">
                 <li>
-                    <a href="#">
-                        <ion-icon name="person-outline"></ion-icon>Profile</a>
-                </li>
-                <li>
-                    <a href="#">
-                        <ion-icon name="chatbox-outline"></ion-icon>Messages</a>
-                </li>
-                <li>
-                    <a href="#">
-                        <ion-icon name="notifications-outline"></ion-icon>Notification</a>
-                </li>
-                <li>
-                    <a href="#">
-                        <ion-icon name="cog-outline"></ion-icon>
-                        </ion-icon>Settings</a>
-                </li>
-                <li>
-                    <a href="#">
+                    <a href="/auth/logout">
                         <ion-icon name="log-out-outline"></ion-icon>Logout</a>
                 </li>
             </ul>
@@ -62,9 +45,6 @@
                         Navegación
                     </div>
                     <ul>
-                        <li class="nav-li">
-                            <a href="/dashboard" onclick="setUrl('/dashboard'); return false;"><i class="fa-solid fa-gauge mr-10"></i> Inicio</a>
-                        </li>
                         <li class="nav-li">
                             <a href="/pos" onclick="setUrl('/pos'); return false;"><i class="fa-solid fa-cart-shopping mr-10"></i> Punto de venta</a>
                         </li>
@@ -103,7 +83,7 @@
                             <a href="#"><i class="fa-solid fa-user-tie mr-10"></i> Empleados <span class="nav-li-span float-right"><i class="fa-solid fa-angle-right"></i></span></a>
                             <ul class="nav-ul-1" id="ul2">
                                 <li class="nav-li">
-                                    <a href="#"><i class="fa-regular fa-circle mr-5"></i> Ventas</a>
+                                    <a href="/employee/sales" onclick="setUrl('/employee/sales'); return false;"><i class="fa-regular fa-circle mr-5"></i> Ventas</a>
                                 </li>
 
                             </ul>
@@ -118,7 +98,9 @@
             </div>
         </div>
     </div>
-
+    <script>
+        var ruteMain = "/pos";
+    </script>
     <script src="/static/js/jquery-3.6.3.min.js"></script>
     <script src="/static/js/pos.js"></script>
     <script src="/static/others/fontawesome-6.2.1/js/all.min.js"></script>
