@@ -1,7 +1,7 @@
 # POS Helados
 Punto de venta de helados.
 
-# Información
+## Información
 - Python
 - Flask
 - MySQL
